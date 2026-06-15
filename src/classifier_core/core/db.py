@@ -1,9 +1,9 @@
 from collections.abc import Generator
 
-from sqlmodel import Session, create_engine
+from sqlmodel import Session, SQLModel, create_engine
 
 from classifier_core.core.config import settings
-from classifier_core.schemas.database import Review, SQLModel  # noqa # type: ignore
+from classifier_core.schemas.database import Review  # noqa # type: ignore
 
 engine = create_engine(settings.database_url, echo=False)
 
