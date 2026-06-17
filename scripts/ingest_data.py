@@ -47,5 +47,6 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         print("\nIngestion interrupted. Saving token...")
+
         if continuation_token:
             save_token(continuation_token)
