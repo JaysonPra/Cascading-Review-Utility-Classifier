@@ -1,4 +1,5 @@
 from collections.abc import Generator
+from contextlib import contextmanager
 
 from sqlmodel import Session, SQLModel, create_engine
 
@@ -8,6 +9,7 @@ from classifier_core.schemas.database import Review  # noqa # type: ignore
 engine = create_engine(settings.database_url, echo=False)
 
 
+@contextmanager
 def get_session() -> Generator[Session, None]:
     with Session(engine) as session:
         yield session
