@@ -1,7 +1,8 @@
+from sqlalchemy.engine import Engine
 from sqlmodel import Session, inspect
 
 
-def test_database_schema_initialization(test_engine):
+def test_database_schema_initialization(test_engine: Engine):
     inspector = inspect(test_engine)
 
     assert "review" in inspector.get_table_names()
