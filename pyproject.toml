@@ -7,17 +7,14 @@ requires-python = ">=3.14"
 dependencies = [
     "google-play-scraper>=1.2.7",
     "loguru>=0.7.3",
-    "mkdocs-material>=9.7.6",
     "mlflow>=3.13.0",
     "optuna>=4.9.0",
     "pandas>=2.3.3",
     "polars>=1.41.2",
     "prefect>=3.7.4",
     "psycopg[binary]>=3.3.4",
-    "psycopg2-binary>=2.9.12",
     "pydantic>=2.13.4",
     "pydantic-settings>=2.14.1",
-    "pytest>=9.1.0",
     "scikit-learn>=1.9.0",
     "sqlmodel>=0.0.38",
     "transformers>=5.12.0",
@@ -26,3 +23,10 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[dependency-groups]
+dev = [
+    "mkdocs-material>=9.7.6",
+    "pgcli>=4.5.0",
+    "pytest>=9.1.1",
+]
