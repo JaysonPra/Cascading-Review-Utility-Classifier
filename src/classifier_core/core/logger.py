@@ -9,12 +9,15 @@ def setup_console_logger() -> None:
     logger.add(sys.stderr, level="INFO")
 
 
+# In your logger setup file:
 def setup_ingestion_logger() -> None:
     logger.add(
         sink=LOGS_DIR / "ingestion" / "ingestion.log",
         level="DEBUG",
         serialize=True,
-        filter=lambda record: record["extra"].get("component") == "ingestion",
+        filter=lambda record: (
+            "ingest" in record["name"] or "ingest" in record["file"].name  # type: ignore
+        ),
         rotation="00:00",
         retention="30 days",
         compression="zip",
@@ -27,7 +30,9 @@ def setup_training_logger() -> None:
         sink=LOGS_DIR / "training" / "training.log",
         level="DEBUG",
         serialize=True,
-        filter=lambda record: record["extra"].get("component") == "training",
+        filter=lambda record: (
+            "train" in record["name"] or "train" in record["file"].name  # type: ignore
+        ),
         rotation="Monday at 00:00",
         retention="90 days",
         compression="zip",
