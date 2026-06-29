@@ -15,5 +15,8 @@ wheels/
 # Secrets
 .env
 
+# Logs
+logs/
+
 # Data files
 data/
