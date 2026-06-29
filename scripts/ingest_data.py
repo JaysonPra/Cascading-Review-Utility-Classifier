@@ -8,12 +8,9 @@ from loguru import logger
 
 from classifier_core.core.constants import DATA_DIR, TOKEN_PATH
 from classifier_core.core.crud import insert_batch_reviews
-from classifier_core.core.db import get_session
+from classifier_core.core.db import get_session, init_db
 from classifier_core.core.logger import setup_console_logger, setup_ingestion_logger
 from classifier_core.schemas.database import Review
-
-setup_console_logger()
-setup_ingestion_logger()
 
 
 def save_token(token: _ContinuationToken) -> None:
@@ -85,6 +82,10 @@ def stream_reviews(
 
 
 if __name__ == "__main__":
+    setup_console_logger()
+    setup_ingestion_logger()
+    init_db()
+
     batch_reviews: list[Review] = []
     initial_token: _ContinuationToken | None = read_token()
     current_token: _ContinuationToken | None = None
