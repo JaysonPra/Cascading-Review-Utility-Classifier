@@ -6,6 +6,7 @@ from classifier_core.schemas.database import Review
 
 
 def insert_batch_reviews(session: Session, reviews: list[Review]) -> None:
+    """Bulk inserts a list of Review records into the database with transaction rollback on failure."""
     if len(reviews) == 0:
         logger.info("No reviews to add...")
         return
