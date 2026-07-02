@@ -5,7 +5,7 @@ from classifier_core.core.config import settings
 from classifier_core.schemas.label import ReviewBatchResponse
 
 
-def create_prompt(review_batch: list[str], prompt: str) -> str:
+def build_batch_prompt(review_batch: list[str], prompt: str) -> str:
     for idx, review in enumerate(review_batch):
         prompt += f"\n{idx}. {review}\n"
 
