@@ -8,5 +8,7 @@ class Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
 
+    label_model: str = "gemini-3.5-flash"
+
 
 settings = Settings()
