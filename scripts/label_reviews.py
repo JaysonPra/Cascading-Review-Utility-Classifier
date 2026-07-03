@@ -2,10 +2,12 @@ from google import genai
 from google.genai import types
 
 from classifier_core.core.config import settings
+from classifier_core.core.crud import get_unlabeled_reviews_batch
+from classifier_core.schemas.database import Review
 from classifier_core.schemas.label import ReviewBatchResponse
 
 
-def build_batch_prompt(review_batch: list[str], prompt: str) -> str:
+def build_batch_prompt(review_batch: list[Review], prompt: str) -> str:
     for idx, review in enumerate(review_batch):
         prompt += f"\n{idx}. {review}\n"
 
