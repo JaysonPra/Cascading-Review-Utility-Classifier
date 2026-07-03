@@ -46,3 +46,16 @@ def get_review(session: Session, id: int) -> Review | None:
         return session.exec(statement).one()
     except SQLAlchemyError:
         logger.exception("Failed to fetch review from database...")
+
+
+def save_review_label(session: Session, id: int, label: ReviewLabel) -> None:
+    """Saves the label of the review for the specified review ID"""
+    review = get_review(session, id)
+
+    if not review:
+        return
+
+    try:
+        review.label = label
+    except SQLAlchemyError:
+        logger.exception("Failed to fetch review from database")
