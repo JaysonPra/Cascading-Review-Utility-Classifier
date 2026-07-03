@@ -36,3 +36,13 @@ def get_unlabeled_reviews_batch(
     except SQLAlchemyError:
         logger.exception("Failed to fetch reviews batch from database")
         return []
+
+
+def get_review(session: Session, id: int) -> Review | None:
+    """Fetches a single review for the specified review ID"""
+    statement = select(Review).where(Review.id == id)
+
+    try:
+        return session.exec(statement).one()
+    except SQLAlchemyError:
+        logger.exception("Failed to fetch review from database...")
