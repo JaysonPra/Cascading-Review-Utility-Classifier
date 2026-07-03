@@ -2,6 +2,7 @@ from loguru import logger
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session, select
 
+from classifier_core.core.types import ReviewLabel
 from classifier_core.schemas.database import Review
 
 
