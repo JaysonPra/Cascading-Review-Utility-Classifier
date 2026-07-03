@@ -2,7 +2,7 @@ from loguru import logger
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session, select
 
-from classifier_core.core.types import ReviewLabel
+from classifier_core.core.types import ReviewLabelType
 from classifier_core.schemas.database import Review
 
 
@@ -49,7 +49,7 @@ def get_review(session: Session, id: int) -> Review | None:
         logger.exception("Failed to fetch review from database...")
 
 
-def save_review_label(session: Session, id: int, label: ReviewLabel) -> None:
+def save_review_label(session: Session, id: int, label: ReviewLabelType) -> None:
     """Saves the label of the review for the specified review ID"""
     review = get_review(session, id)
 
