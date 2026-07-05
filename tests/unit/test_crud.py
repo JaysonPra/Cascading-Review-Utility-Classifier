@@ -49,7 +49,7 @@ def test_get_review(db_session: Session):
     fetched_review = get_review(db_session, id=12)
 
     assert fetched_review is not None
-    assert fetched_review.id == 42
+    assert fetched_review.id == 12
     assert fetched_review.content == "Very nice product!"
 
 
