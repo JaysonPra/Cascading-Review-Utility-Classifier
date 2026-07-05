@@ -8,10 +8,11 @@ import classifier_core.core.db as db_module
 
 @pytest.fixture(scope="function")
 def test_engine(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
-    test_db_file = tmp_path / "test_classifier.db"
-    test_url = f"sqlite:///{test_db_file}"
+    test_url = "sqlite:///:memory:"
 
-    local_test_engine = create_engine(test_url, echo=False)
+    local_test_engine = create_engine(
+        test_url, echo=False, connect_args={"check_same_thread": False}
+    )
 
     monkeypatch.setattr(db_module, "engine", local_test_engine)
 
