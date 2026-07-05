@@ -59,9 +59,17 @@ if __name__ == "__main__":
 
     with get_session() as session:
         for _ in range(count):
-            batch_labels, last_id = start_labeling(
+            if not last_id:
+                break
+
+            batch_labels, current_last_id = start_labeling(
                 session, client, batch_size, last_id, prompt
             )
+
+            if current_last_id is None or batch_labels is None:
+                break
+
+            last_id = current_last_id
 
             validated_batch = ReviewBatchResponse.model_validate(
                 batch_labels
