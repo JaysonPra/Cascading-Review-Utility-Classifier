@@ -1,5 +1,3 @@
-import pathlib
-
 import pytest
 from sqlmodel import Session, SQLModel, create_engine
 
@@ -7,7 +5,7 @@ import classifier_core.core.db as db_module
 
 
 @pytest.fixture(scope="function")
-def test_engine(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
+def test_engine(monkeypatch: pytest.MonkeyPatch):
     test_url = "sqlite:///:memory:"
 
     local_test_engine = create_engine(
