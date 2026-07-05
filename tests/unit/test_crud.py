@@ -5,6 +5,7 @@ from classifier_core.core.crud import (
     insert_batch_reviews,
     save_review_label,
 )
+from classifier_core.core.types import ReviewLabelType
 from classifier_core.schemas.database import Review
 
 
@@ -63,14 +64,14 @@ def test_save_review_label(db_session: Session):
     db_session.add(test_review)
     db_session.commit()
 
-    save_review_label(db_session, id=42, label="Spam")
+    save_review_label(db_session, id=42, label=ReviewLabelType.SPAM)
 
     updated_review = db_session.exec(select(Review).where(Review.id == 42)).one()
     assert updated_review.label == "Spam"
 
 
 def test_save_review_label_non_existent(db_session: Session):
-    save_review_label(db_session, id=24, label="High Utility")
+    save_review_label(db_session, id=24, label=ReviewLabelType.HIGH_UTILITY)
 
     results = db_session.exec(select(Review)).all()
     assert len(results) == 0
