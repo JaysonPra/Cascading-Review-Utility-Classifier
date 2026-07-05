@@ -9,11 +9,10 @@ from classifier_core.schemas.database import Review
 from classifier_core.schemas.label import ReviewBatchResponse
 
 
-def build_batch_prompt(review_batch: list[Review], prompt: str) -> str:
-    for review in review_batch:
-        prompt += f"\n{review.id}. {review}\n"
+def build_batch_prompt(review_batch: list[Review], system_instructions: str) -> str:
+    serialized_reviews = "\n".join(f"{r.id}. {r.content}" for r in review_batch)
 
-    return prompt
+    return f"{system_instructions}\nReviews to process:\n{serialized_reviews}"
 
 
 def label_review(client: genai.Client, prompt_content: str) -> str | None:
