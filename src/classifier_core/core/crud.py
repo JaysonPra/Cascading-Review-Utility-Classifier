@@ -58,5 +58,8 @@ def save_review_label(session: Session, id: int, label: ReviewLabelType) -> None
 
     try:
         review.label = label
+        session.commit()
+
     except SQLAlchemyError:
+        session.rollback()
         logger.exception("Failed to fetch review from database")
