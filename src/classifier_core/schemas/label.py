@@ -6,7 +6,7 @@ from classifier_core.core.types import ReviewLabelType
 class ReviewLabel(BaseModel):
     id: int = Field(description="ID of the Review being labeled")
     label: ReviewLabelType = Field(
-        description="Must be either 'High Utility', 'Low Utility', or 'Spam'"
+        description="The category classification for the review content"
     )
     reasoning: str = Field(description="Include a one sentence reason for the label")
 
