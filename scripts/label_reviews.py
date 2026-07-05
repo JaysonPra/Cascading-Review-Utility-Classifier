@@ -35,10 +35,13 @@ def start_labeling(
     batch_size: int = 20,
     last_id: int = 0,
     prompt: str = "",
-) -> tuple[str | None, int]:
+) -> tuple[str | None, int | None]:
     review_batch = get_unlabeled_reviews_batch(
         session=session, limit=batch_size, last_id=last_id
     )
+
+    if not review_batch:
+        return None, None
 
     batch_prompt = build_batch_prompt(review_batch, prompt)
 
