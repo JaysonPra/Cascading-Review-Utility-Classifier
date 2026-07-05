@@ -1,3 +1,7 @@
-from typing import Literal
+from enum import Enum
 
-type ReviewLabelType = Literal["High Utility", "Low Utility", "Spam"]
+
+class ReviewLabelType(str, Enum):
+    SPAM = "Spam"
+    HIGH_UTILITY = "High Utility"
+    LOW_UTILITY = "Low Utility"
