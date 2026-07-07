@@ -1,5 +1,11 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+import yaml
 from google import genai
 from google.genai import types
+from pydantic import BaseModel, Field
 from sqlmodel import Session
 
 from classifier_core.core.config import settings
@@ -7,6 +13,18 @@ from classifier_core.core.crud import get_unlabeled_reviews_batch, save_review_l
 from classifier_core.core.db import get_session
 from classifier_core.schemas.database import Review
 from classifier_core.schemas.label import ReviewBatchResponse
+
+
+class LabelingJobConfig(BaseModel):
+    batch_size: int = Field(default=20, ge=1)
+    count: int = Field(default=5, ge=1)
+    system_instruction: str
+
+    @classmethod
+    def load_from_yaml(cls, file_path: Path) -> LabelingJobConfig:
+        with open(file_path, "r") as f:
+            data = yaml.safe_load(f)
+        return cls(**data)
 
 
 def build_batch_prompt(review_batch: list[Review], system_instructions: str) -> str:
