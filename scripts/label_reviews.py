@@ -68,30 +68,30 @@ def start_labeling(
     return batch_labels, review_batch[-1].id  # type: ignore
 
 
-if __name__ == "__main__":
-    count: int = 5
-    batch_size: int = 20
-    prompt: str = ""
-    last_id: int = 0
+def run_labeling_pipeline(config_path: Path) -> None:
+    job_config = LabelingJobConfig.load_from_yaml(config_path)
     client = genai.Client()
 
-    with get_session() as session:
-        for _ in range(count):
-            if not last_id:
-                break
+    last_id: int | None = 0
 
+    with get_session() as session:
+        for _ in range(job_config.count):
             batch_labels, current_last_id = start_labeling(
-                session, client, batch_size, last_id, prompt
+                session,
+                client,
+                job_config.batch_size,
+                last_id,
+                job_config.system_instruction,
             )
 
             if current_last_id is None or batch_labels is None:
                 break
-
-            last_id = current_last_id
 
             validated_batch = ReviewBatchResponse.model_validate(
                 batch_labels
             ).batch_response
 
             for review in validated_batch:
-                save_review_label(session, id=review.id, label=review.label)
+                save_review_label(session, review.id, review.label)
+
+            last_id = current_last_id
