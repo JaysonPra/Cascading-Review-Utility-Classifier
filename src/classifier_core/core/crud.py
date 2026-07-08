@@ -36,7 +36,7 @@ def get_unlabeled_manual_reviews(session: Session, limit: int = 100) -> list[Rev
 
 
 def save_batch_review_label(
-    session: Session, updates: dict[str, ReviewLabelType]
+    session: Session, updates: dict[int, ReviewLabelType]
 ) -> None:
     """Saves the label of the review for the specified review ID"""
     if not updates:
