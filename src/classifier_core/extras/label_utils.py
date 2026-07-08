@@ -12,7 +12,7 @@ from classifier_core.schemas.label import ReviewBatchResponse
 
 class LabelingJobConfig(BaseModel):
     batch_size: int = Field(default=20, ge=1)
-    count: int = Field(default=5, ge=1)
+    num_reviews: int = Field(default=100, ge=1)
     system_instruction: str
 
     @classmethod
