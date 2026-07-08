@@ -28,7 +28,7 @@ def build_batch_prompt(review_batch: list[Review], system_instructions: str) -> 
     return f"{system_instructions}\nReviews to process:\n{serialized_reviews}"
 
 
-def label_review(client: genai.Client, prompt_content: str) -> str | None:
+def label_batch_reviews(client: genai.Client, prompt_content: str) -> str | None:
     response = client.models.generate_content(
         contents=prompt_content,
         model=settings.label_model,
