@@ -41,7 +41,7 @@ def start_labeling_job(job_config: LabelingJobConfig, client: genai.Client) -> N
             batch_prompt = build_batch_prompt(batch, job_config.system_instruction)
 
             response = label_batch_reviews(client, batch_prompt)
-            validated_response = ReviewBatchResponse.model_validate(response)
+            validated_response = ReviewBatchResponse.model_validate_json(response)
 
             label_dict = get_label_dict(validated_response)
             save_batch_review_label(session, label_dict)
