@@ -18,6 +18,7 @@ class LabelingJobConfig(BaseModel):
 
     @classmethod
     def load_from_yaml(cls, file_path: Path) -> "LabelingJobConfig":
+        """Loads and validates the labeling job configuration from a YAML file."""
         logger.info(f"Loading configuration from {file_path}")
         try:
             with open(file_path, "r") as f:
@@ -36,6 +37,7 @@ class LabelingJobConfig(BaseModel):
 
 
 def build_batch_prompt(review_batch: list[Review], system_instructions: str) -> str:
+    """Formats a structured text prompt combining system instructions and a batch of reviews."""
     logger.info(f"Building batch prompt for {len(review_batch)} reviews")
 
     serialized_reviews = "\n".join(f"{r.id}. {r.content}" for r in review_batch)
@@ -43,6 +45,7 @@ def build_batch_prompt(review_batch: list[Review], system_instructions: str) -> 
 
 
 def label_batch_reviews(client: genai.Client, prompt_content: str) -> str:
+    """Sends the formatted prompt to the Gemini API and returns the validated structured JSON string."""
     logger.info(f"Sending batch request to Gemini model: {settings.label_model}")
     try:
         response = client.models.generate_content(
