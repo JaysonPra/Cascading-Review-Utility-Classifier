@@ -1,5 +1,5 @@
 batch_size: 20
-count: 5
+num_reviews: 100
 system_instruction: |
   You are an expert data annotator. Analyze the provided reviews and classify 
   them strictly according to the defined schema rules. Do not hallucinate fields.
