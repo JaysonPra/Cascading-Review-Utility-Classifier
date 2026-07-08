@@ -35,27 +35,22 @@ def get_unlabeled_manual_reviews(session: Session, limit: int = 100) -> list[Rev
         return []
 
 
-def get_review(session: Session, id: int) -> Review | None:
-    """Fetches a single review for the specified review ID"""
-    statement = select(Review).where(Review.id == id)
-
-    try:
-        return session.exec(statement).one()
-    except SQLAlchemyError:
-        logger.exception("Failed to fetch review from database...")
-
-
-def save_review_label(session: Session, id: int, label: ReviewLabelType) -> None:
+def save_batch_review_label(
+    session: Session, updates: dict[str, ReviewLabelType]
+) -> None:
     """Saves the label of the review for the specified review ID"""
-    review = get_review(session, id)
-
-    if not review:
+    if not updates:
         return
 
     try:
-        review.label = label
+        statement = select(Review).where(Review.id in updates.keys())
+        reviews = session.exec(statement).all()
+
+        for review in reviews:
+            review.label = updates[review.id]  # type: ignore
+
         session.commit()
 
     except SQLAlchemyError:
         session.rollback()
-        logger.exception("Failed to fetch review from database")
+        logger.exception("Failed to batch update review labels in the database")
