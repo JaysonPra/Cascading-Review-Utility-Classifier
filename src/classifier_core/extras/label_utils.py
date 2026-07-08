@@ -23,12 +23,14 @@ class LabelingJobConfig(BaseModel):
 
 
 def build_batch_prompt(review_batch: list[Review], system_instructions: str) -> str:
+    """Generates a prompt including all the reviews of the batch"""
     serialized_reviews = "\n".join(f"{r.id}. {r.content}" for r in review_batch)
 
     return f"{system_instructions}\nReviews to process:\n{serialized_reviews}"
 
 
 def label_batch_reviews(client: genai.Client, prompt_content: str) -> str:
+    """Prompts the Gemini API and returns the response in JSON"""
     response = client.models.generate_content(
         contents=prompt_content,
         model=settings.label_model,
