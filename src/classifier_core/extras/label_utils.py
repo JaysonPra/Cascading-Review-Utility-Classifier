@@ -23,10 +23,13 @@ class LabelingJobConfig(BaseModel):
             with open(file_path, "r") as f:
                 data = yaml.safe_load(f)
             config = cls(**data)
+
             logger.success(
                 f"Configuration loaded: batch_size={config.batch_size}, num_reviews={config.num_reviews}"
             )
+
             return config
+
         except Exception:
             logger.exception(f"Failed to load configuration from {file_path}")
             raise
@@ -34,6 +37,7 @@ class LabelingJobConfig(BaseModel):
 
 def build_batch_prompt(review_batch: list[Review], system_instructions: str) -> str:
     logger.info(f"Building batch prompt for {len(review_batch)} reviews")
+
     serialized_reviews = "\n".join(f"{r.id}. {r.content}" for r in review_batch)
     return f"{system_instructions}\nReviews to process:\n{serialized_reviews}"
 
