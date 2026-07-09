@@ -35,6 +35,17 @@ def get_reviews_with_manual_labels(session: Session, limit: int = 100) -> list[R
         return []
 
 
+def get_batch_reviews(session: Session, limit: int = 150) -> list[Review]:
+    """Fetches an ordered batch of reviews"""
+    statement = select(Review).limit(limit)
+
+    try:
+        return list(session.exec(statement).all())
+    except SQLAlchemyError:
+        logger.exception("Failed to fetch reviews batch from database")
+        return []
+
+
 def save_batch_review_label(
     session: Session, updates: dict[int, ReviewLabelType]
 ) -> None:
