@@ -24,8 +24,8 @@ def insert_batch_reviews(session: Session, reviews: list[Review]) -> None:
         session.rollback()
 
 
-def get_unlabeled_manual_reviews(session: Session, limit: int = 100) -> list[Review]:
-    """Fetches a chronologically ordered batch of unlabeled manual labels."""
+def get_reviews_with_manual_labels(session: Session, limit: int = 100) -> list[Review]:
+    """Fetches a chronologically ordered batch of reviews with manual labels."""
     statement = select(Review).where(Review.manual_label is not None).limit(limit)
 
     try:

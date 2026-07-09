@@ -4,7 +4,7 @@ from google import genai
 
 from classifier_core.core.constants import CONFIG_DIR
 from classifier_core.core.crud import (
-    get_unlabeled_manual_reviews,
+    get_reviews_with_manual_labels,
     save_batch_review_label,
 )
 from classifier_core.core.db import get_session
@@ -33,7 +33,7 @@ def get_label_dict(batch_reviews: ReviewBatchResponse) -> dict[int, ReviewLabelT
 
 def start_labeling_job(job_config: LabelingJobConfig, client: genai.Client) -> None:
     with get_session() as session:
-        unlabeled_reviews = get_unlabeled_manual_reviews(
+        unlabeled_reviews = get_reviews_with_manual_labels(
             session, job_config.num_reviews
         )
 
