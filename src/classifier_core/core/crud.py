@@ -59,6 +59,7 @@ def save_batch_review_label(
 
         for review in reviews:
             review.label = updates[review.id]  # type: ignore
+            session.add(review)
 
         session.commit()
 
