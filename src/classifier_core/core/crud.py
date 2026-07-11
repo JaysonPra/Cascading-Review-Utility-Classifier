@@ -26,7 +26,7 @@ def insert_batch_reviews(session: Session, reviews: list[Review]) -> None:
 
 def get_reviews_with_manual_labels(session: Session, limit: int = 100) -> list[Review]:
     """Fetches a chronologically ordered batch of reviews with manual labels."""
-    statement = select(Review).where(Review.manual_label is not None).limit(limit)
+    statement = select(Review).where(Review.manual_label != None).limit(limit)
 
     try:
         return list(session.exec(statement).all())
