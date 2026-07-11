@@ -1,6 +1,7 @@
 from sqlmodel import Session, select
 
 from classifier_core.core.crud import (
+    get_batch_reviews,
     get_reviews_with_manual_labels,
     insert_batch_reviews,
 )
@@ -55,3 +56,13 @@ def test_get_reviews_with_manual_labels(db_session: Session):
     assert any(r.content == "Great" for r in results)
     assert any(r.content == "Terrible" for r in results)
     assert not any(r.content == "Okay" for r in results)
+
+
+def test_get_batch_reviews(db_session: Session):
+    batch = [Review(content=f"Review {i}", score=3) for i in range(5)]
+    db_session.add_all(batch)
+    db_session.commit()
+
+    results = get_batch_reviews(db_session, limit=3)
+
+    assert len(results) == 3
