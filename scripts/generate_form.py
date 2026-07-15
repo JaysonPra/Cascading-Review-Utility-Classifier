@@ -35,4 +35,4 @@ if __name__ == "__main__":
     file_path = DATA_DIR / "reviews.xlsx"
 
     with get_session() as session:
-        create_excel_sheet(session, file_path)
+        create_excel_sheet(session, file_path, num_reviews=500)
