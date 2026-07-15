@@ -94,6 +94,7 @@ if __name__ == "__main__":
         try:
             for review, current_token in stream_reviews(initial_token):
                 batch_reviews.append(review)
+                logger.debug(f"Review {len(batch_reviews)}")
 
                 if len(batch_reviews) == 100:
                     insert_batch_reviews(session, batch_reviews)
