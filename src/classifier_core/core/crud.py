@@ -37,7 +37,7 @@ def get_reviews_with_manual_labels(session: Session, limit: int = 100) -> list[R
 
 def get_batch_reviews(session: Session, limit: int = 150) -> list[Review]:
     """Fetches an ordered batch of reviews"""
-    statement = select(Review).limit(limit)
+    statement = select(Review).order_by(Review.id).limit(limit)
 
     try:
         return list(session.exec(statement).all())
