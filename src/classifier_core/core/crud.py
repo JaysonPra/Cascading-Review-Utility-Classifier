@@ -66,3 +66,25 @@ def save_batch_review_label(
     except SQLAlchemyError:
         session.rollback()
         logger.exception("Failed to batch update review labels in the database")
+
+
+def save_batch_review_manual_label(
+    session: Session, updates: dict[int, ReviewLabelType]
+) -> None:
+    """Saves manual labels of a batch of reviews"""
+    if not updates:
+        return
+
+    try:
+        statement = select(Review).where(Review.id in updates.keys())
+        reviews = session.exec(statement).all()
+
+        for review in reviews:
+            review.manual_label = updates[review.id]
+            session.add(review)
+
+        session.commit()
+
+    except SQLAlchemyError:
+        session.rollback()
+        logger.exception("Failed to batch update review manual labels in the database")
