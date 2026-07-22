@@ -12,6 +12,7 @@ from classifier_core.core.db import get_session
 def create_excel_sheet(
     session: Session, file_path: Path, num_reviews: int = 150
 ) -> None:
+    """Creates an excel sheet populated with reviews for manual labeling"""
     reviews = get_batch_reviews(session, num_reviews)
 
     df = pd.DataFrame([r.model_dump() for r in reviews])
