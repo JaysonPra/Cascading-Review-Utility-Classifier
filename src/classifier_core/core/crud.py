@@ -1,6 +1,6 @@
 from loguru import logger
 from sqlalchemy.exc import SQLAlchemyError
-from sqlmodel import Session, select
+from sqlmodel import Session, col, select
 
 from classifier_core.core.types import ReviewLabelType
 from classifier_core.schemas.database import Review
@@ -54,7 +54,7 @@ def save_batch_review_label(
         return
 
     try:
-        statement = select(Review).where(Review.id in updates.keys())
+        statement = select(Review).where(col(Review.id).in_(list(updates.keys())))
         reviews = session.exec(statement).all()
 
         for review in reviews:
@@ -62,6 +62,7 @@ def save_batch_review_label(
             session.add(review)
 
         session.commit()
+        logger.success("Review batch committed successfully")
 
     except SQLAlchemyError:
         session.rollback()
@@ -76,7 +77,7 @@ def save_batch_review_manual_label(
         return
 
     try:
-        statement = select(Review).where(Review.id in updates.keys())
+        statement = select(Review).where(col(Review.id).in_(list(updates.keys())))
         reviews = session.exec(statement).all()
 
         for review in reviews:
@@ -84,6 +85,7 @@ def save_batch_review_manual_label(
             session.add(review)
 
         session.commit()
+        logger.success("Review batch committed succesfully")
 
     except SQLAlchemyError:
         session.rollback()
