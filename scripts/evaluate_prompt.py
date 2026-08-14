@@ -1,10 +1,12 @@
 from collections.abc import Generator
 
 from google import genai
+from sklearn.metrics import cohen_kappa_score
 from sqlmodel import Session
 
 from classifier_core.core.constants import CONFIG_DIR
 from classifier_core.core.crud import (
+    get_reviews_with_llm_labels,
     get_reviews_with_manual_labels,
     save_batch_review_label,
 )
@@ -47,6 +49,17 @@ def start_labeling_job(
         save_batch_review_label(session, label_dict)
 
 
+def evaluate_label(session: Session) -> float:
+    labeled_reviews = get_reviews_with_llm_labels(session)
+
+    manual_labels = [review.manual_label.value for review in labeled_reviews]
+    llm_labels = [review.label.value for review in labeled_reviews]
+
+    all_labels = [e.value for e in ReviewLabelType]
+
+    return cohen_kappa_score(manual_labels, llm_labels, labels=all_labels)
+
+
 if __name__ == "__main__":
     file_path = CONFIG_DIR / "labeling_job.yaml"
     system_instructions = LabelingJobConfig.load_from_yaml(file_path)
@@ -54,4 +67,5 @@ if __name__ == "__main__":
     client = genai.Client()
 
     with get_session() as session:
-        start_labeling_job(system_instructions, client, session)
+        # start_labeling_job(system_instructions, client, session)
+        score = evaluate_label(session)
