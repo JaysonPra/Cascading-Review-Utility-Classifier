@@ -35,6 +35,17 @@ def get_reviews_with_manual_labels(session: Session, limit: int = 100) -> list[R
         return []
 
 
+def get_reviews_with_llm_labels(session: Session) -> list[Review]:
+    """Fetches a chronologically ordered batch of reviews with LLM generated labels."""
+    statement = select(Review).where(Review.label != None)
+
+    try:
+        return list(session.exec(statement).all())
+    except SQLAlchemyError:
+        logger.exception("Failed to fetch reviews from database")
+        return []
+
+
 def get_batch_reviews(session: Session, limit: int = 150) -> list[Review]:
     """Fetches an ordered batch of reviews"""
     statement = select(Review).order_by(Review.id).limit(limit)
