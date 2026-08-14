@@ -37,7 +37,9 @@ def get_reviews_with_manual_labels(session: Session, limit: int = 100) -> list[R
 
 def get_reviews_with_llm_labels(session: Session) -> list[Review]:
     """Fetches a chronologically ordered batch of reviews with LLM generated labels."""
-    statement = select(Review).where(Review.label != None)
+    statement = select(Review).where(
+        Review.label.is_not(None), Review.manual_label.is_not(None)
+    )
 
     try:
         return list(session.exec(statement).all())
