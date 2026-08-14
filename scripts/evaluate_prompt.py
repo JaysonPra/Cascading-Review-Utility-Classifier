@@ -1,6 +1,7 @@
 from collections.abc import Generator
 
 from google import genai
+from sqlmodel import Session
 
 from classifier_core.core.constants import CONFIG_DIR
 from classifier_core.core.crud import (
@@ -31,20 +32,19 @@ def get_label_dict(batch_reviews: ReviewBatchResponse) -> dict[int, ReviewLabelT
     return {review.id: review.label for review in reviews}
 
 
-def start_labeling_job(job_config: LabelingJobConfig, client: genai.Client) -> None:
-    with get_session() as session:
-        unlabeled_reviews = get_reviews_with_manual_labels(
-            session, job_config.num_reviews
-        )
+def start_labeling_job(
+    job_config: LabelingJobConfig, client: genai.Client, session: Session
+) -> None:
+    unlabeled_reviews = get_reviews_with_manual_labels(session, job_config.num_reviews)
 
-        for batch in chunk_reviews(unlabeled_reviews, job_config.batch_size):
-            batch_prompt = build_batch_prompt(batch, job_config.system_instruction)
+    for batch in chunk_reviews(unlabeled_reviews, job_config.batch_size):
+        batch_prompt = build_batch_prompt(batch, job_config.system_instruction)
 
-            response = label_batch_reviews(client, batch_prompt)
-            validated_response = ReviewBatchResponse.model_validate_json(response)
+        response = label_batch_reviews(client, batch_prompt)
+        validated_response = ReviewBatchResponse.model_validate_json(response)
 
-            label_dict = get_label_dict(validated_response)
-            save_batch_review_label(session, label_dict)
+        label_dict = get_label_dict(validated_response)
+        save_batch_review_label(session, label_dict)
 
 
 if __name__ == "__main__":
@@ -53,4 +53,5 @@ if __name__ == "__main__":
 
     client = genai.Client()
 
-    start_labeling_job(system_instructions, client)
+    with get_session() as session:
+        start_labeling_job(system_instructions, client, session)
