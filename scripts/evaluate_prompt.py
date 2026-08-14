@@ -52,8 +52,8 @@ def start_labeling_job(
 def evaluate_label(session: Session) -> float:
     labeled_reviews = get_reviews_with_llm_labels(session)
 
-    manual_labels = [review.manual_label.value for review in labeled_reviews]
-    llm_labels = [review.label.value for review in labeled_reviews]
+    manual_labels = [review.manual_label.value for review in labeled_reviews]  # type: ignore
+    llm_labels = [review.label.value for review in labeled_reviews]  # type: ignore
 
     all_labels = [e.value for e in ReviewLabelType]
 
