@@ -1,5 +1,6 @@
 from collections.abc import Generator
 
+import mlflow
 from google import genai
 from sklearn.metrics import cohen_kappa_score
 from sqlmodel import Session
@@ -60,6 +61,25 @@ def evaluate_label(session: Session) -> float:
     return cohen_kappa_score(manual_labels, llm_labels, labels=all_labels)
 
 
+def run_experiment(
+    system_instructions: LabelingJobConfig, client: genai.Client, session: Session
+) -> None:
+    mlflow.set_experiment(experiment_name="System Prompt Evaluation")  # type: ignore
+
+    instructions_dict: dict[str, int | str] = {
+        "batch_size": system_instructions.batch_size,
+        "num_reviews": system_instructions.num_reviews,
+        "system_prompt": system_instructions.system_instruction,
+    }
+
+    with mlflow.start_run():
+        start_labeling_job(system_instructions, client, session)
+        score = evaluate_label(session)
+
+        mlflow.log_params(instructions_dict)
+        mlflow.log_metric("cohen_kappa_score", score)
+
+
 if __name__ == "__main__":
     file_path = CONFIG_DIR / "labeling_job.yaml"
     system_instructions = LabelingJobConfig.load_from_yaml(file_path)
@@ -67,5 +87,4 @@ if __name__ == "__main__":
     client = genai.Client()
 
     with get_session() as session:
-        # start_labeling_job(system_instructions, client, session)
-        score = evaluate_label(session)
+        run_experiment(system_instructions, client, session)
