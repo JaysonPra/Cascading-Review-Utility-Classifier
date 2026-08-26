@@ -25,11 +25,13 @@ def chunk_reviews(
     reviews: list[Review],
     chunk_size: int,
 ) -> Generator[list[Review], None, None]:
+    """Yields batches of reviews of a specified chunk size."""
     for i in range(0, len(reviews), chunk_size):
         yield reviews[i : i + chunk_size]
 
 
 def get_label_dict(batch_reviews: ReviewBatchResponse) -> dict[int, ReviewLabelType]:
+    """Maps review IDs to their predicted LLM labels."""
     reviews = batch_reviews.batch_response
 
     return {review.id: review.label for review in reviews}
@@ -38,6 +40,7 @@ def get_label_dict(batch_reviews: ReviewBatchResponse) -> dict[int, ReviewLabelT
 def start_labeling_job(
     job_config: LabelingJobConfig, client: genai.Client, session: Session
 ) -> None:
+    """Executes the batch LLM labeling pipeline for manually annotated reviews."""
     unlabeled_reviews = get_reviews_with_manual_labels(session, job_config.num_reviews)
 
     for batch in chunk_reviews(unlabeled_reviews, job_config.batch_size):
@@ -51,6 +54,7 @@ def start_labeling_job(
 
 
 def evaluate_label(session: Session) -> float:
+    """Calculates Cohen's Kappa score between manual and LLM labels."""
     labeled_reviews = get_reviews_with_llm_labels(session)
 
     manual_labels = [review.manual_label.value for review in labeled_reviews]  # type: ignore
@@ -64,6 +68,7 @@ def evaluate_label(session: Session) -> float:
 def run_experiment(
     system_instructions: LabelingJobConfig, client: genai.Client, session: Session
 ) -> None:
+    """Runs a system prompt evaluation experiment and logs metrics to MLflow."""
     mlflow.set_experiment(experiment_name="System Prompt Evaluation")  # type: ignore
 
     instructions_dict: dict[str, int | str] = {
