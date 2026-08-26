@@ -2,9 +2,11 @@ from sqlmodel import Session, select
 
 from classifier_core.core.crud import (
     get_batch_reviews,
+    get_reviews_with_llm_labels,
     get_reviews_with_manual_labels,
     insert_batch_reviews,
     save_batch_review_label,
+    save_batch_review_manual_label,
 )
 from classifier_core.core.types import ReviewLabelType
 from classifier_core.schemas.database import Review
@@ -59,6 +61,39 @@ def test_get_reviews_with_manual_labels(db_session: Session):
     assert not any(r.content == "Okay" for r in results)
 
 
+def test_get_reviews_with_llm_labels(db_session: Session):
+    reviews = [
+        # Both labels present (should match)
+        Review(
+            content="Great",
+            score=5,
+            label=ReviewLabelType.HIGH_UTILITY,
+            manual_label=ReviewLabelType.HIGH_UTILITY,
+        ),
+        # Missing manual label
+        Review(
+            content="Okay",
+            score=3,
+            label=ReviewLabelType.LOW_UTILITY,
+            manual_label=None,
+        ),
+        # Missing LLM label
+        Review(
+            content="Terrible",
+            score=1,
+            label=None,
+            manual_label=ReviewLabelType.LOW_UTILITY,
+        ),
+    ]
+    db_session.add_all(reviews)
+    db_session.commit()
+
+    results = get_reviews_with_llm_labels(db_session)
+
+    assert len(results) == 1
+    assert results[0].content == "Great"
+
+
 def test_get_batch_reviews(db_session: Session):
     batch = [Review(content=f"Review {i}", score=3) for i in range(5)]
     db_session.add_all(batch)
@@ -94,3 +129,30 @@ def test_save_batch_review_label(db_session: Session):
 
     assert updated_10.label == ReviewLabelType.HIGH_UTILITY
     assert updated_11.label == ReviewLabelType.LOW_UTILITY
+
+
+def test_save_batch_review_manual_label(db_session: Session):
+    initial_reviews = [
+        Review(content="Loved it", score=5),
+        Review(content="Hated it", score=1),
+    ]
+    db_session.add_all(initial_reviews)
+    db_session.commit()
+
+    updates = {
+        initial_reviews[0].id: ReviewLabelType.HIGH_UTILITY,
+        initial_reviews[1].id: ReviewLabelType.LOW_UTILITY,
+    }
+
+    save_batch_review_manual_label(db_session, updates)
+
+    db_session.expire_all()
+
+    updated_10 = db_session.get(Review, initial_reviews[0].id)
+    updated_11 = db_session.get(Review, initial_reviews[1].id)
+
+    assert updated_10 is not None
+    assert updated_11 is not None
+
+    assert updated_10.manual_label == ReviewLabelType.HIGH_UTILITY
+    assert updated_11.manual_label == ReviewLabelType.LOW_UTILITY
