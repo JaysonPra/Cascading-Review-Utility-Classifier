@@ -144,7 +144,7 @@ def test_save_batch_review_manual_label(db_session: Session):
         initial_reviews[1].id: ReviewLabelType.LOW_UTILITY,
     }
 
-    save_batch_review_manual_label(db_session, updates)
+    save_batch_review_manual_label(db_session, updates)  # type: ignore
 
     db_session.expire_all()
 
