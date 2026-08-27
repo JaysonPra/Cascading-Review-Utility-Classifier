@@ -96,7 +96,7 @@ if __name__ == "__main__":
     client = genai.Client()
 
     with get_session() as session:
-        unlabeled_reviews = get_reviews_with_manual_labels(
+        reviews = get_reviews_with_manual_labels(
             session, system_instructions.num_reviews
         )
-        run_experiment(system_instructions, unlabeled_reviews, client, session)
+        run_experiment(system_instructions, reviews, client, session)
