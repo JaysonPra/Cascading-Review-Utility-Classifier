@@ -1,3 +1,4 @@
+import argparse
 from collections.abc import Generator
 
 import mlflow
@@ -9,6 +10,7 @@ from classifier_core.core.constants import CONFIG_DIR
 from classifier_core.core.crud import (
     get_reviews_with_llm_labels,
     get_reviews_with_manual_labels,
+    get_unlabeled_reviews,
     save_batch_review_label,
 )
 from classifier_core.core.db import get_session
@@ -92,11 +94,18 @@ def run_experiment(
 if __name__ == "__main__":
     file_path = CONFIG_DIR / "labeling_job.yaml"
     system_instructions = LabelingJobConfig.load_from_yaml(file_path)
-
     client = genai.Client()
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--apply", action="store_true")
+    args = parser.parse_args()
+
     with get_session() as session:
-        reviews = get_reviews_with_manual_labels(
-            session, system_instructions.num_reviews
-        )
-        run_experiment(system_instructions, reviews, client, session)
+        if args.apply:
+            reviews = get_unlabeled_reviews(session)
+            start_labeling_job(system_instructions, reviews, client, session)
+        else:
+            reviews = get_reviews_with_manual_labels(
+                session, limit=system_instructions.num_reviews
+            )
+            run_experiment(system_instructions, reviews, client, session)
