@@ -4,6 +4,7 @@ from classifier_core.core.crud import (
     get_batch_reviews,
     get_reviews_with_llm_labels,
     get_reviews_with_manual_labels,
+    get_unlabeled_reviews,
     insert_batch_reviews,
     save_batch_review_label,
     save_batch_review_manual_label,
@@ -156,3 +157,22 @@ def test_save_batch_review_manual_label(db_session: Session):
 
     assert updated_10.manual_label == ReviewLabelType.HIGH_UTILITY
     assert updated_11.manual_label == ReviewLabelType.LOW_UTILITY
+
+
+def test_get_unlabeled_reviews(db_session: Session):
+    mixed_reviews = [
+        Review(content="No manual label", score=5, manual_label=None),
+        Review(
+            content="Has manual label",
+            score=1,
+            manual_label=ReviewLabelType.LOW_UTILITY,
+        ),
+    ]
+    db_session.add_all(mixed_reviews)
+    db_session.commit()
+
+    results = get_unlabeled_reviews(db_session)
+
+    assert len(results) == 1
+    assert results[0].content == "No manual label"
+    assert results[0].manual_label is None
