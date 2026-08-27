@@ -38,12 +38,13 @@ def get_label_dict(batch_reviews: ReviewBatchResponse) -> dict[int, ReviewLabelT
 
 
 def start_labeling_job(
-    job_config: LabelingJobConfig, client: genai.Client, session: Session
+    job_config: LabelingJobConfig,
+    reviews: list[Review],
+    client: genai.Client,
+    session: Session,
 ) -> None:
     """Executes the batch LLM labeling pipeline for manually annotated reviews."""
-    unlabeled_reviews = get_reviews_with_manual_labels(session, job_config.num_reviews)
-
-    for batch in chunk_reviews(unlabeled_reviews, job_config.batch_size):
+    for batch in chunk_reviews(reviews, job_config.batch_size):
         batch_prompt = build_batch_prompt(batch, job_config.system_instruction)
 
         response = label_batch_reviews(client, batch_prompt)
@@ -66,7 +67,10 @@ def evaluate_label(session: Session) -> float:
 
 
 def run_experiment(
-    system_instructions: LabelingJobConfig, client: genai.Client, session: Session
+    system_instructions: LabelingJobConfig,
+    reviews: list[Review],
+    client: genai.Client,
+    session: Session,
 ) -> None:
     """Runs a system prompt evaluation experiment and logs metrics to MLflow."""
     mlflow.set_experiment(experiment_name="System Prompt Evaluation")  # type: ignore
@@ -78,7 +82,7 @@ def run_experiment(
     }
 
     with mlflow.start_run():
-        start_labeling_job(system_instructions, client, session)
+        start_labeling_job(system_instructions, reviews, client, session)
         score = evaluate_label(session)
 
         mlflow.log_params(instructions_dict)
@@ -92,4 +96,7 @@ if __name__ == "__main__":
     client = genai.Client()
 
     with get_session() as session:
-        run_experiment(system_instructions, client, session)
+        unlabeled_reviews = get_reviews_with_manual_labels(
+            session, system_instructions.num_reviews
+        )
+        run_experiment(system_instructions, unlabeled_reviews, client, session)
