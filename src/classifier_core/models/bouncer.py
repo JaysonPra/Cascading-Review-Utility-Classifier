@@ -1,7 +1,5 @@
 import pandas as pd
 
-from classifier_core.core.crud import get_reviews_with_llm_labels
-from classifier_core.core.db import get_session
 from classifier_core.core.types import ReviewLabelType
 
 
@@ -17,15 +15,17 @@ def convert_label_bouncer(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def extract_metadata(df: pd.DataFrame) -> pd.DataFrame: ...
-def fit_tfidf(df: pd.DataFrame) -> None: ...
+def extract_metadata(df: pd.DataFrame) -> pd.DataFrame:
+    df["char_count"] = df["content"].str.len()
 
+    df["uppercase_count"] = df["content"].str.findall(r"[A-Z]").str.len()
+    df["uppercase_ratio"] = df["uppercase_count"] / df["char_count"].replace(0, 1)
 
-if __name__ == "__main__":
-    with get_session() as session:
-        reviews = get_reviews_with_llm_labels(session)
+    df["word_count"] = df["content"].str.split().str.len()
+    df["exclamation_count"] = df["content"].str.count(r"!")
+    df["question_count"] = df["content"].str.count(r"\?")
 
-        reviews_data = [review.model_dump() for review in reviews]
-        reviews_df = pd.DataFrame(reviews_data)
+    char_count_no_spaces = df["content"].str.replace(r"\s+", "", regex=True).str.len()
+    df["avg_word_len"] = char_count_no_spaces / df["word_count"].replace(0, 1)
 
-        converted = convert_label_bouncer(reviews_df)
+    return df
