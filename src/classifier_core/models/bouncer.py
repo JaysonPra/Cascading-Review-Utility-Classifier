@@ -40,8 +40,8 @@ def extract_metadata(df: pd.DataFrame) -> pd.DataFrame:
 def get_latencies(X_val: pd.DataFrame, classifier: XGBClassifier) -> list[float]:
     latencies: list[float] = []
 
-    for i in range(1, min(len(X_val), 100)):
-        sample = X_val.iloc[i]
+    for i in range(min(len(X_val), 100)):
+        sample = X_val.iloc[[i]]
         start = time.perf_counter()
         classifier.predict(sample)
         latencies.append((time.perf_counter() - start) * 1000)
@@ -56,6 +56,7 @@ def objective(
     X_val: pd.DataFrame,
     y_val: pd.DataFrame,
     user_params: dict[str, list[int] | list[float]],
+    max_latency_in_ms: float = 50.0,
 ) -> float:
     params: dict[str, int | float] = {
         "max_depth": trial.suggest_int("max_depth", *user_params["max_depth"]),  # type: ignore
@@ -76,7 +77,7 @@ def objective(
     latencies = get_latencies(X_val, classifier)
     p90_latency = np.percentile(latencies, 90)
 
-    if p90_latency > params["max_latency_in_ms"]:
+    if p90_latency > max_latency_in_ms:
         raise optuna.TrialPruned()
 
     preds = classifier.predict(X_val)
