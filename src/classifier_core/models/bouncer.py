@@ -70,9 +70,7 @@ def objective(
         "n_estimators": trial.suggest_int("n_estimators", *user_params["n_estimators"]),  # type: ignore
     }
 
-    classifier = XGBClassifier(**params, random_state=42)
-
-    classifier.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
+    classifier = train_xgboost(params, X_train, y_train, X_val, y_val)
 
     latencies = get_latencies(X_val, classifier)
     p90_latency = np.percentile(latencies, 90)
@@ -82,3 +80,17 @@ def objective(
 
     preds = classifier.predict(X_val)
     return float(precision_score(y_val, preds, zero_division=0))
+
+
+def train_xgboost(
+    params: dict[str, int | float],
+    X_train: pd.DataFrame,
+    y_train: pd.DataFrame,
+    X_val: pd.DataFrame,
+    y_val: pd.DataFrame,
+) -> XGBClassifier:
+    classifier = XGBClassifier(**params, random_state=42)
+
+    classifier.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
+
+    return classifier
