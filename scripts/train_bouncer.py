@@ -1,7 +1,9 @@
 # pyright: reportGeneralTypeIssues=false
 # type: ignore
 
+import argparse
 from pathlib import Path
+from typing import Any
 
 import mlflow
 import optuna
@@ -36,6 +38,29 @@ METADATA_COLS = [
 def load_config(file_path: Path) -> dict:
     with open(file_path, "r") as file:
         return yaml.safe_load(file)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=DATA_DIR / "params.yaml",
+        help="Path to configuration yaml file",
+    )
+    parser.add_argument(
+        "--max-trials",
+        type=int,
+        default=None,
+        help="Override max optuna trials",
+    )
+    parser.add_argument(
+        "--max-latency",
+        type=float,
+        default=None,
+        help="Override max latency constraint in ms",
+    )
+    return parser.parse_args()
 
 
 def fetch_and_prepare_data() -> tuple[pd.DataFrame, pd.Series]:
@@ -127,8 +152,19 @@ def start_experiment(
 
 
 if __name__ == "__main__":
-    file_path: Path = DATA_DIR / "params.yaml"
-    config_dict = load_config(file_path)
+    args = parse_args()
+    config_dict = load_config(args.config)
+
+    max_trials = (
+        args.max_trials
+        if args.max_trials is not None
+        else config_dict.get("max_trials", 20)
+    )
+    max_latency = (
+        args.max_latency
+        if args.max_latency is not None
+        else config_dict.get("max_latency_in_ms", 50.0)
+    )
 
     X, y = fetch_and_prepare_data()
     X_train, X_val, X_test, y_train, y_val, y_test = split_data(X, y)
@@ -146,6 +182,6 @@ if __name__ == "__main__":
         y_test=y_test,
         user_params=config_dict["user_params"],
         vectorizer=vectorizer,
-        max_latency_in_ms=config_dict.get("max_latency_in_ms", 50.0),
-        max_trials=config_dict.get("max_trials", 20),
+        max_latency_in_ms=max_latency,
+        max_trials=max_trials,
     )
