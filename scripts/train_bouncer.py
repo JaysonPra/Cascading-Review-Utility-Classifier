@@ -14,7 +14,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import precision_score
 from sklearn.model_selection import train_test_split
 
-from classifier_core.core.constants import DATA_DIR
+from classifier_core.core.constants import CONFIG_DIR
 from classifier_core.core.crud import get_reviews_with_only_llm_labels
 from classifier_core.core.db import get_session
 from classifier_core.models.bouncer import (
@@ -45,7 +45,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--config",
         type=Path,
-        default=DATA_DIR / "params.yaml",
+        default=CONFIG_DIR / "xgboost_config.yaml",
         help="Path to configuration yaml file",
     )
     parser.add_argument(
